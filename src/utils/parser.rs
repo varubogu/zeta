@@ -1,9 +1,10 @@
 use std::fmt::Display;
 
 use crate::{
-    ast::{Element, MarkdownDoc, MessageType, ParsedMd, TokenizedMd, ZetaFrontmatter},
-    r#macro::ParsedMacro,
-    token::{Token, TokenType},
+    utils::ast::{Element, MarkdownDoc, MessageType, ParsedMd, TokenizedMd, },
+    utils::r#macro::ParsedMacro,
+    utils::token::{Token, TokenType},
+    utils::zeta::frontmatter::ZetaFrontmatter
 };
 
 const FRONTMATTER_TOPICS_MAX: usize = 5;
@@ -174,8 +175,8 @@ impl Parser {
             if self.peek().is_none() {
                 self.errors.push(ParseError::new(
                     ParseErrorType::CouldNotFindEndToken(end),
-                        0,
-                        0
+                    0,
+                    0
                 ));
             }
         }

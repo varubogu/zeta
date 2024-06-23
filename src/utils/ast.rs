@@ -1,6 +1,7 @@
 use crate::{
-    r#macro::{ParsedMacro, Platform},
-    token::Token,
+    utils::r#macro::{ParsedMacro},
+    utils::token::Token,
+    utils::zeta::frontmatter::ZetaFrontmatter,
 };
 
 #[derive(Debug, Clone)]
@@ -20,19 +21,6 @@ impl<F, E> MarkdownDoc<F, E> {
 
 pub type TokenizedMd = MarkdownDoc<String, Token>;
 pub type ParsedMd = MarkdownDoc<ZetaFrontmatter, Element>;
-
-#[derive(Debug, Clone, Default, serde::Serialize, serde::Deserialize)]
-pub struct ZetaFrontmatter {
-    pub title: String,
-    pub emoji: String,
-    pub r#type: String,
-    pub topics: Vec<String>,
-    pub qiita_id: Option<String>,
-    pub published: bool,
-    /// compile only specified platform
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub only: Option<Platform>,
-}
 
 #[derive(Debug, Clone)]
 pub enum Element {

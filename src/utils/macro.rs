@@ -1,4 +1,7 @@
-use crate::{ast::Element, token::Token};
+use crate::{
+    utils::ast::Element,
+    utils::token::Token
+};
 
 #[derive(Debug, Clone, serde::Serialize, serde::Deserialize, clap::ValueEnum)]
 pub enum Platform {

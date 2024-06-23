@@ -1,9 +1,9 @@
 use std::{error::Error, fmt::Display};
 
 use crate::{
-    ast::{MarkdownDoc, TokenizedMd},
-    r#macro::{StringMacro, TokenizedMacro},
-    token::{Token, TokenType},
+    utils::ast::{MarkdownDoc, TokenizedMd},
+    utils::r#macro::{StringMacro, TokenizedMacro},
+    utils::token::{Token, TokenType},
 };
 
 const SEPARATOR: &str = "---\n";
@@ -283,7 +283,7 @@ impl Scanner {
 
             '\n' => {
                 self.advance();
-                
+
                 self.block_element()?;
             }
 

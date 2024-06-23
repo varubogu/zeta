@@ -1,29 +1,12 @@
-use std::{
-    collections::{HashMap, HashSet},
-    fs,
-    process::{Command, Stdio},
-};
-
-use serde::{Deserialize, Serialize};
-
-use crate::{
-    ast::{Element, MessageType, ParsedMd, ZetaFrontmatter},
-    print::zeta_error,
-    Settings,
-};
-
-#[allow(non_snake_case)]
-#[derive(Debug, Serialize, Deserialize)]
-pub struct QiitaFrontmatter {
-    title: String,
-    tags: Vec<String>,
-    private: bool,
-    updated_at: String,
-    id: Option<String>,
-    organization_url_name: Option<String>,
-    slide: bool,
-    ignorePublish: bool,
-}
+use std::collections::{HashMap, HashSet};
+use std::fs;
+use std::process::{Command, Stdio};
+use serde::Serialize;
+use crate::settings::Settings;
+use crate::utils::ast::{Element, MessageType, ParsedMd};
+use crate::utils::print::zeta_error;
+use crate::utils::zeta::frontmatter::ZetaFrontmatter;
+use crate::utils::qiita::frontmatter::QiitaFrontmatter;
 
 pub struct QiitaCompiler {
     existing_fm: Option<QiitaFrontmatter>,
@@ -59,12 +42,12 @@ impl QiitaCompiler {
                 private: existing_fm.private,
                 updated_at: existing_fm.updated_at.clone(),
                 id: if existing_fm.id.is_some() && !existing_fm.id.as_ref().unwrap().is_empty() {
-                        existing_fm.id.clone()
-                    } else if frontmatter.qiita_id.is_some() && !frontmatter.qiita_id.as_ref().unwrap().is_empty() {
-                        frontmatter.qiita_id
-                    } else {
-                        Some("".to_string())
-                    },
+                    existing_fm.id.clone()
+                } else if frontmatter.qiita_id.is_some() && !frontmatter.qiita_id.as_ref().unwrap().is_empty() {
+                    frontmatter.qiita_id
+                } else {
+                    Some("".to_string())
+                },
                 organization_url_name: existing_fm.organization_url_name.clone(),
                 slide: existing_fm.slide,
                 ignorePublish: !frontmatter.published,
@@ -229,94 +212,4 @@ fn image_path_github(path: &str) -> String {
         "https://raw.githubusercontent.com/{}/{}{}",
         repository, main_branch, path
     )
-}
-
-#[derive(Debug, Serialize, Deserialize)]
-pub struct ZennFrontmatter {
-    title: String,
-    emoji: String,
-    r#type: String,
-    topics: Vec<String>,
-    published: bool,
-}
-
-pub struct ZennCompiler;
-
-impl ZennCompiler {
-    pub fn new() -> Self {
-        Self {}
-    }
-
-    pub fn compile(mut self, file: ParsedMd) -> String {
-        self.compile_header(file.frontmatter) + &self.compile_elements(file.elements)
-    }
-
-    fn compile_header(&mut self, frontmatter: ZetaFrontmatter) -> String {
-        let mut result = b"---\n".to_vec();
-        let frontmatter = ZennFrontmatter {
-            title: frontmatter.title,
-            emoji: frontmatter.emoji,
-            r#type: frontmatter.r#type,
-            topics: frontmatter.topics,
-            published: frontmatter.published,
-        };
-        let mut ser = serde_yaml::Serializer::new(&mut result);
-        frontmatter.serialize(&mut ser).unwrap();
-        result.extend(b"---\n");
-        String::from_utf8(result).unwrap()
-    }
-
-    fn compile_elements(&mut self, elements: Vec<Element>) -> String {
-        elements
-            .into_iter()
-            .map(|element| self.compile_element(element))
-            .collect()
-    }
-
-    fn compile_element(&mut self, element: Element) -> String {
-        match element {
-            Element::Text(text) => text,
-            Element::Url(url) => format!("{}", url),
-            Element::Macro(macro_info) => self.compile_elements(macro_info.zenn),
-            Element::LinkCard { card_type, url } => {
-                format!("@[{}]({})", card_type, url)
-            }
-            Element::Image { alt, url } => {
-                format!("![{}]({})", alt, url)
-            }
-            Element::InlineFootnote(content) => format!("^[{}]", content),
-            Element::Footnote(name) => format!("[^{}]", name),
-            Element::Message {
-                level,
-                msg_type,
-                body,
-            } => {
-                let msg_type = match msg_type {
-                    MessageType::Info => "",
-                    MessageType::Warn => "",
-                    MessageType::Alert => "alert",
-                };
-
-                let mut compiler = ZennCompiler {};
-                let body = compiler.compile_elements(body);
-
-                format!(
-                    ":::{0}message {1}{2}:::{0}",
-                    ":".repeat(level),
-                    msg_type,
-                    body
-                )
-            }
-            Element::Details { level, title, body } => {
-                let mut compiler = ZennCompiler {};
-                let body = compiler.compile_elements(body);
-                format!(
-                    ":::{0}details {1}{2}:::{0}",
-                    ":".repeat(level),
-                    title,
-                    body
-                )
-            }
-        }
-    }
 }

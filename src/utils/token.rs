@@ -1,4 +1,4 @@
-use crate::r#macro::TokenizedMacro;
+use crate::utils::r#macro::TokenizedMacro;
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct Token {
