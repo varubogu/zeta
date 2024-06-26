@@ -1,7 +1,5 @@
-use crate::{
-    ast::element::Element,
-    token::token::Token
-};
+use crate::ast::element::Element;
+use crate::token::token::Token;
 
 pub type StringMacro = Macro<Option<String>>;
 pub type TokenizedMacro = Macro<Vec<Token>>;

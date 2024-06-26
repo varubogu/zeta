@@ -1,16 +1,16 @@
-use std::{
-    collections::{HashMap, HashSet},
-    fs,
-    process::{Command, Stdio},
-};
+use std::collections::HashMap;
+use std::collections::HashSet;
+use std::fs;
+use std::process::Command;
+use std::process::Stdio;
 use serde::Serialize;
 use crate::settings::Settings;
-use crate::{
-    ast::{element::Element, message_type::MessageType, parsed_markdown::ParsedMarkdown},
-    utils::print::zeta_error,
-    parser::platforms::zeta::frontmatter::ZetaFrontmatter,
-    parser::platforms::qiita::frontmatter::QiitaFrontmatter,
-};
+use crate::ast::parsed_markdown::ParsedMarkdown;
+use crate::ast::message_type::MessageType;
+use crate::ast::element::Element;
+use crate::utils::print::zeta_error;
+use crate::parser::platforms::zeta::frontmatter::ZetaFrontmatter;
+use crate::parser::platforms::qiita::frontmatter::QiitaFrontmatter;
 
 pub struct QiitaCompiler {
     existing_fm: Option<QiitaFrontmatter>,

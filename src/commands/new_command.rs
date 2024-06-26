@@ -1,7 +1,5 @@
-use std::{
-    fs,
-    io::Write
-};
+use std::fs;
+use std::io::Write;
 use serde::Serialize;
 use crate::parser::platforms::platform::PlatformType;
 use crate::parser::platforms::zeta::frontmatter::ZetaFrontmatter;

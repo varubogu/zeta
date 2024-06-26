@@ -1,7 +1,6 @@
 use serde::Serialize;
-use crate::{
-    ast::{element::Element, message_type::MessageType},
-};
+use crate::ast::element::Element;
+use crate::ast::message_type::MessageType;
 use crate::ast::markdown_doc::MarkdownDoc;
 
 trait BaseCompiler<TFrontMatter>
