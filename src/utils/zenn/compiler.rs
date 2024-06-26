@@ -1,7 +1,9 @@
 use serde::Serialize;
-use crate::utils::ast::{Element, MessageType, ParsedMd};
-use crate::utils::zenn::frontmatter::ZennFrontmatter;
-use crate::utils::zeta::frontmatter::ZetaFrontmatter;
+use crate::utils::{
+    ast::{Element, MessageType, ParsedMd},
+    zenn::frontmatter::ZennFrontmatter,
+    zeta::frontmatter::ZetaFrontmatter,
+};
 
 pub struct ZennCompiler;
 

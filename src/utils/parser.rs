@@ -1,10 +1,10 @@
 use std::fmt::Display;
 
-use crate::{
-    utils::ast::{Element, MarkdownDoc, MessageType, ParsedMd, TokenizedMd, },
-    utils::r#macro::ParsedMacro,
-    utils::token::{Token, TokenType},
-    utils::zeta::frontmatter::ZetaFrontmatter
+use crate::utils::{
+    ast::{Element, MarkdownDoc, MessageType, ParsedMd, TokenizedMd, },
+    r#macro::ParsedMacro,
+    token::{Token, TokenType},
+    zeta::frontmatter::ZetaFrontmatter
 };
 
 const FRONTMATTER_TOPICS_MAX: usize = 5;

@@ -1,14 +1,18 @@
-use std::path::PathBuf;
-use std::fs;
-use std::fs::DirBuilder;
+use std::{
+    path::PathBuf,
+    fs,
+    fs::DirBuilder
+};
 use serde::Deserialize;
-use crate::utils::parser;
-use crate::utils::ast::ParsedMd;
-use crate::utils::qiita::{compiler::QiitaCompiler, frontmatter::QiitaFrontmatter};
-use crate::utils::zenn::compiler::ZennCompiler;
-use crate::utils::print::{zeta_error, zeta_error_position};
-use crate::utils::r#macro::Platform;
-use crate::utils::scanner::Scanner;
+use crate::utils::{
+    parser,
+    ast::ParsedMd,
+    qiita::{compiler::QiitaCompiler, frontmatter::QiitaFrontmatter},
+    zenn::compiler::ZennCompiler,
+    print::{zeta_error, zeta_error_position},
+    r#macro::Platform,
+    scanner::Scanner,
+};
 
 pub fn build(target: &str) {
     let target = &PathBuf::from(target).file_stem().unwrap().to_os_string().into_string().unwrap();

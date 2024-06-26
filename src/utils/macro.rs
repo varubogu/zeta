@@ -1,6 +1,6 @@
-use crate::{
-    utils::ast::Element,
-    utils::token::Token
+use crate::utils::{
+    ast::Element,
+    token::Token
 };
 
 #[derive(Debug, Clone, serde::Serialize, serde::Deserialize, clap::ValueEnum)]

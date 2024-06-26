@@ -1,10 +1,14 @@
-use std::fs;
-use std::io::Write;
+use std::{
+    fs,
+    io::Write
+};
 use serde::Serialize;
 
-use crate::utils::zeta::frontmatter::ZetaFrontmatter;
-use crate::utils::print::zeta_error;
-use crate::utils::r#macro::Platform;
+use crate::utils::{
+    zeta::frontmatter::ZetaFrontmatter,
+    print::zeta_error,
+    r#macro::Platform,
+};
 
 pub fn new(target: &str, only: &Option<Platform>) {
     let _ = fs::DirBuilder::new()

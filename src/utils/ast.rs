@@ -1,7 +1,7 @@
-use crate::{
-    utils::r#macro::{ParsedMacro},
-    utils::token::Token,
-    utils::zeta::frontmatter::ZetaFrontmatter,
+use crate::utils::{
+    r#macro::{ParsedMacro},
+    token::Token,
+    zeta::frontmatter::ZetaFrontmatter,
 };
 
 #[derive(Debug, Clone)]
