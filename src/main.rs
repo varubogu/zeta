@@ -1,10 +1,14 @@
-mod cli_interface;
-mod commands;
 mod utils;
+mod console;
+mod commands;
 mod settings;
+mod token;
+mod r#macro;
+mod parser;
+mod ast;
 
 use clap::{Parser};
-use cli_interface::{
+use console::{
     cli::Cli,
     zeta_command::ZetaCommand,
 };

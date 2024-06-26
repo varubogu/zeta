@@ -3,14 +3,11 @@ use std::{
     io::Write
 };
 use serde::Serialize;
+use crate::parser::platforms::platform::PlatformType;
+use crate::parser::platforms::zeta::frontmatter::ZetaFrontmatter;
+use crate::utils::print::zeta_error;
 
-use crate::utils::{
-    zeta::frontmatter::ZetaFrontmatter,
-    print::zeta_error,
-    r#macro::Platform,
-};
-
-pub fn new(target: &str, only: &Option<Platform>) {
+pub fn new(target: &str, only: &Option<PlatformType>) {
     let _ = fs::DirBuilder::new()
         .recursive(true)
         .create(format!("images/{}", target));

@@ -1,22 +1,22 @@
-use std::{
-    path::PathBuf,
-    fs,
-    fs::DirBuilder
-};
+use std::path::PathBuf;
+use std::fs;
+use std::fs::DirBuilder;
 use serde::Deserialize;
-use crate::utils::{
-    parser,
-    ast::ParsedMd,
-    qiita::{compiler::QiitaCompiler, frontmatter::QiitaFrontmatter},
-    zenn::compiler::ZennCompiler,
-    print::{zeta_error, zeta_error_position},
-    r#macro::Platform,
-    scanner::Scanner,
-};
+use crate::parser::platforms::qiita::compiler::QiitaCompiler;
+use crate::parser;
+use crate::ast::parsed_markdown::ParsedMarkdown;
+use crate::parser::platforms::qiita::frontmatter::QiitaFrontmatter;
+use crate::parser::platforms::platform::PlatformType;
+use crate::parser::platforms::zenn::compiler::ZennCompiler;
+use crate::utils::print::zeta_error;
+use crate::utils::print::zeta_error_position;
+use crate::parser::platforms::zeta::compiler::ZetaCompiler;
+use crate::parser::platforms::zeta::util::get_zeta_file;
+use crate::parser::scanner::scanner::Scanner;
 
 pub fn build(target: &str) {
     let target = &PathBuf::from(target).file_stem().unwrap().to_os_string().into_string().unwrap();
-    let Ok(file) = fs::read_to_string(format!("zeta/{}.md", target)) else {
+    let Ok(file) = fs::read_to_string(get_zeta_file(&target)) else {
         zeta_error("Target not found");
         return;
     };
@@ -32,7 +32,7 @@ pub fn build(target: &str) {
         }
     };
 
-    let parser = parser::Parser::new(markdown);
+    let parser = parser::parser_type::Parser::new(markdown);
     let file = match parser.parse() {
         Ok(file) => file,
         Err(errors) => {
@@ -45,8 +45,9 @@ pub fn build(target: &str) {
 
     if let Some(platform) = &file.frontmatter.only {
         match platform {
-            Platform::Zenn => compile_zenn(file, target),
-            Platform::Qiita => compile_qiita(file, target),
+            PlatformType::Zenn => compile_zenn(file, target),
+            PlatformType::Qiita => compile_qiita(file, target),
+            PlatformType::Zeta => compile_zenn(file, target),
         }
     } else {
         compile_zenn(file.clone(), target);
@@ -54,13 +55,13 @@ pub fn build(target: &str) {
     }
 }
 
-fn compile_zenn(file: ParsedMd, target: &str) {
+fn compile_zenn(file: ParsedMarkdown, target: &str) {
     let compiler = ZennCompiler::new();
     let zenn_md = compiler.compile(file);
     fs::write(format!("articles/{}.md", target), zenn_md).unwrap();
 }
 
-fn compile_qiita(file: ParsedMd, target: &str) {
+fn compile_qiita(file: ParsedMarkdown, target: &str) {
     let existing_header =
         if let Ok(existing_file) = fs::read_to_string(format!("public/{}.md", target)) {
             let existing_file = &existing_file[4..];
@@ -77,4 +78,10 @@ fn compile_qiita(file: ParsedMd, target: &str) {
 
     DirBuilder::new().recursive(true).create("public").unwrap();
     fs::write(format!("public/{}.md", target), qiita_md).unwrap();
+}
+
+fn compile_zeta(file: ParsedMarkdown, target: &str) {
+    let compiler = ZetaCompiler::new();
+    let zeta_md = compiler.compile(file);
+    fs::write(format!("articles/{}.md", target), zeta_md).unwrap();
 }
