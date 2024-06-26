@@ -6,6 +6,7 @@ mod token;
 mod r#macro;
 mod parser;
 mod ast;
+mod constants;
 
 use clap::{Parser};
 use console::cli::Cli;

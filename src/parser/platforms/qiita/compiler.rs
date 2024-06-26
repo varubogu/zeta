@@ -19,6 +19,7 @@ pub struct QiitaCompiler {
 }
 
 impl QiitaCompiler {
+
     pub fn new(existing_header: Option<QiitaFrontmatter>) -> Self {
         Self {
             existing_fm: existing_header,
@@ -27,7 +28,8 @@ impl QiitaCompiler {
         }
     }
 
-    pub fn compile(mut self, file: ParsedMarkdown) -> String {
+
+    pub(crate) fn compile(mut self, file: ParsedMarkdown) -> String {
         let mut result = self.compile_frontmatter(file.frontmatter) + &self.compile_elements(file.elements);
         for (name, content) in &self.inline_footnotes {
             result.push_str(&format!("\n[^{}]: {}\n", name, content));
@@ -142,11 +144,11 @@ impl QiitaCompiler {
                 msg_type,
                 body,
             } => {
-                let msg_type = match msg_type {
+                let msg_type = String::from(match msg_type {
                     MessageType::Info => "info",
                     MessageType::Warn => "warn",
                     MessageType::Alert => "alert",
-                };
+                });
 
                 let mut compiler = QiitaCompiler::new(None);
                 let body = compiler.compile_elements(body);
@@ -169,51 +171,51 @@ impl QiitaCompiler {
     }
 }
 
-fn image_path_github(path: &str) -> String {
-    let Ok(settings) = fs::read_to_string("./Zeta.toml") else {
-        zeta_error("Failed to read Zeta.toml");
-        return path.to_string();
-    };
-    let Ok(settings): Result<Settings, _> = toml::from_str(settings.as_str()) else {
-        zeta_error("Failed to parse Zeta.toml");
-        return path.to_string();
-    };
-    let repository = settings.repository;
+    fn image_path_github(path: &str) -> String {
+        let Ok(settings) = fs::read_to_string("./Zeta.toml") else {
+            zeta_error("Failed to read Zeta.toml");
+            return path.to_string();
+        };
+        let Ok(settings): Result<Settings, _> = toml::from_str(settings.as_str()) else {
+            zeta_error("Failed to parse Zeta.toml");
+            return path.to_string();
+        };
+        let repository = settings.repository;
 
-    let mut remote = Command::new("git")
-        .args(["remote", "show", "origin"])
-        .stdout(Stdio::piped())
-        .spawn()
-        .unwrap();
+        let mut remote = Command::new("git")
+            .args(["remote", "show", "origin"])
+            .stdout(Stdio::piped())
+            .spawn()
+            .unwrap();
 
-    if !remote.wait().unwrap().success() {
-        zeta_error("Failed to get remote origin");
-        return path.to_string();
+        if !remote.wait().unwrap().success() {
+            zeta_error("Failed to get remote origin");
+            return path.to_string();
+        }
+
+        let grep = Command::new("grep")
+            .arg("HEAD branch")
+            .stdin(Stdio::from(remote.stdout.unwrap()))
+            .stdout(Stdio::piped())
+            .spawn()
+            .unwrap();
+
+        let mut main_branch = String::from_utf8(grep.wait_with_output().unwrap().stdout)
+            .unwrap()
+            .split(' ')
+            .last()
+            .unwrap()
+            .to_string();
+
+        if main_branch.is_empty() {
+            zeta_error("Failed to get main branch");
+            return path.to_string();
+        }
+
+        main_branch.pop(); // \n
+
+        format!(
+            "https://raw.githubusercontent.com/{}/{}{}",
+            repository, main_branch, path
+        )
     }
-
-    let grep = Command::new("grep")
-        .arg("HEAD branch")
-        .stdin(Stdio::from(remote.stdout.unwrap()))
-        .stdout(Stdio::piped())
-        .spawn()
-        .unwrap();
-
-    let mut main_branch = String::from_utf8(grep.wait_with_output().unwrap().stdout)
-        .unwrap()
-        .split(' ')
-        .last()
-        .unwrap()
-        .to_string();
-
-    if main_branch.is_empty() {
-        zeta_error("Failed to get main branch");
-        return path.to_string();
-    }
-
-    main_branch.pop(); // \n
-
-    format!(
-        "https://raw.githubusercontent.com/{}/{}{}",
-        repository, main_branch, path
-    )
-}

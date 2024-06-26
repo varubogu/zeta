@@ -5,9 +5,12 @@ use serde::Deserialize;
 use crate::parser::platforms::qiita::compiler::QiitaCompiler;
 use crate::parser;
 use crate::ast::parsed_markdown::ParsedMarkdown;
+use crate::constants::ENV_QIITA_DIRECTORY;
 use crate::parser::platforms::qiita::frontmatter::QiitaFrontmatter;
 use crate::parser::platforms::platform::PlatformType;
+use crate::parser::platforms::qiita::util::get_qiita_file;
 use crate::parser::platforms::zenn::compiler::ZennCompiler;
+use crate::parser::platforms::zenn::util::get_zenn_file;
 use crate::utils::print::zeta_error;
 use crate::utils::print::zeta_error_position;
 use crate::parser::platforms::zeta::compiler::ZetaCompiler;
@@ -58,12 +61,12 @@ pub fn build(target: &str) {
 fn compile_zenn(file: ParsedMarkdown, target: &str) {
     let compiler = ZennCompiler::new();
     let zenn_md = compiler.compile(file);
-    fs::write(format!("articles/{}.md", target), zenn_md).unwrap();
+    fs::write(get_zenn_file(target), zenn_md).unwrap();
 }
 
 fn compile_qiita(file: ParsedMarkdown, target: &str) {
     let existing_header =
-        if let Ok(existing_file) = fs::read_to_string(format!("public/{}.md", target)) {
+        if let Ok(existing_file) = fs::read_to_string(get_qiita_file(target)) {
             let existing_file = &existing_file[4..];
             let end = existing_file.find("---").unwrap();
             let existing_file = &existing_file[..end];
@@ -76,12 +79,12 @@ fn compile_qiita(file: ParsedMarkdown, target: &str) {
     let compiler = QiitaCompiler::new(existing_header);
     let qiita_md = compiler.compile(file.clone());
 
-    DirBuilder::new().recursive(true).create("public").unwrap();
-    fs::write(format!("public/{}.md", target), qiita_md).unwrap();
+    DirBuilder::new().recursive(true).create(ENV_QIITA_DIRECTORY).unwrap();
+    fs::write(get_qiita_file(target), qiita_md).unwrap();
 }
 
 fn compile_zeta(file: ParsedMarkdown, target: &str) {
     let compiler = ZetaCompiler::new();
     let zeta_md = compiler.compile(file);
-    fs::write(format!("articles/{}.md", target), zeta_md).unwrap();
+    fs::write(get_zeta_file(target), zeta_md).unwrap();
 }

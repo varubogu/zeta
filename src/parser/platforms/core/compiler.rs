@@ -1,13 +1,11 @@
 use serde::Serialize;
 use crate::ast::element::Element;
-use crate::ast::message_type::MessageType;
 use crate::ast::markdown_doc::MarkdownDoc;
 
-trait BaseCompiler<TFrontMatter>
+pub(crate) trait BaseCompiler<TFrontMatter>
 where TFrontMatter: Clone + Serialize
 {
-    fn new() -> Box<Self> where Self: Sized;
-
+    ///
     fn compile(mut self, file: MarkdownDoc<TFrontMatter, Element>) -> String  where Self: Sized {
         self.compile_frontmatter(file.frontmatter) + &self.compile_elements(file.elements)
     }
@@ -22,5 +20,4 @@ where TFrontMatter: Clone + Serialize
     }
 
     fn compile_element(&mut self, element: Element) -> String  where Self: Sized;
-    fn get_message_type(msg_type: MessageType) -> str;
 }

@@ -3,6 +3,7 @@ use std::io::Write;
 use serde::Serialize;
 use crate::parser::platforms::platform::PlatformType;
 use crate::parser::platforms::zeta::frontmatter::ZetaFrontmatter;
+use crate::parser::platforms::zeta::util::get_zeta_file;
 use crate::utils::print::zeta_error;
 
 pub fn new(target: &str, only: &Option<PlatformType>) {
@@ -10,7 +11,7 @@ pub fn new(target: &str, only: &Option<PlatformType>) {
         .recursive(true)
         .create(format!("images/{}", target));
 
-    let Ok(file) = fs::File::create(format!("zeta/{}.md", target)) else {
+    let Ok(file) = fs::File::create(get_zeta_file(target)) else {
         zeta_error("Target already exists");
         return;
     };

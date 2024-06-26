@@ -1,3 +1,4 @@
-pub(crate) fn get_zeta_dir() -> String { String::from("zeta") }
-pub(crate) fn get_zeta_file(file_name: &str) -> String { format!("{}/{}.md", get_zeta_dir(), file_name) }
+use crate::constants::ENV_ZETA_DIRECTORY;
+use crate::parser::platforms::core::util::get_target_file;
 
+pub(crate) fn get_zeta_file(file_name: &str) -> String { get_target_file(ENV_ZETA_DIRECTORY, file_name) }
